@@ -18,7 +18,7 @@ import javax.jms.TextMessage;
  * @author yeesheng on 12/08/2018
  * @project JMSApiExample
  */
-public class QueueReceiverRunnable implements Runnable {
+public class JmsMessageConsumer implements Runnable {
     private final String hostname;
     private final String channel;
     private final int port;
@@ -31,10 +31,10 @@ public class QueueReceiverRunnable implements Runnable {
 
     private volatile boolean running;
 
-    private static final Logger logger = LoggerFactory.getLogger(QueueReceiverRunnable.class);
+    private static final Logger logger = LoggerFactory.getLogger(JmsMessageConsumer.class);
 
-    public QueueReceiverRunnable(String hostname, String channel, int port,
-                                 String queueManager, String readQueueName, boolean ssl) {
+    public JmsMessageConsumer(String hostname, String channel, int port,
+                              String queueManager, String readQueueName, boolean ssl) {
 
         this.hostname = hostname;
         this.channel = channel;
@@ -53,8 +53,6 @@ public class QueueReceiverRunnable implements Runnable {
         mqQueueConnectionFactory.setTransportType(JMSC.MQJMS_TP_CLIENT_MQ_TCPIP);
         if (ssl) {
             mqQueueConnectionFactory.setSSLCipherSuite("TLS_RSA_WITH_AES_128_CBC_SHA256");
-//            mqQueueConnectionFactory.setSSLCipherSuite("TLS_RSA_WITH_AES_256_CBC_SHA");
-//            mqQueueConnectionFactory.setSSLCipherSuite("TLS_RSA_WITH_AES_256_GCM_SHA384");
         }
 
         connection = mqQueueConnectionFactory.createQueueConnection();

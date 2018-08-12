@@ -19,17 +19,17 @@ import javax.jms.TextMessage;
  * @author yeesheng on 11/08/2018
  * @project JmsApp
  */
-public class SyncMessageSender {
+public class JmsMessageProducer {
 
-    private static final Logger logger = LoggerFactory.getLogger(SyncMessageSender.class);
+    private static final Logger logger = LoggerFactory.getLogger(JmsMessageProducer.class);
 
     private final QueueConnection connection;
     private final QueueSession session;
     private final MessageProducer producer;
     private final String replyQueueName;
 
-    public SyncMessageSender(String hostname, String channel, int port,
-                             String queueManager, String sendQueueName, String replyQueueName, boolean ssl) throws JMSException {
+    public JmsMessageProducer(String hostname, String channel, int port,
+                              String queueManager, String sendQueueName, String replyQueueName, boolean ssl) throws JMSException {
 
         this.replyQueueName = replyQueueName;
 
@@ -61,8 +61,8 @@ public class SyncMessageSender {
 
 //            producer.setTimeToLive(2 * 1000);
             producer.send(textMessage);
-
-            logger.info("Sent message with JMS Correlation ID: " + textMessage.getJMSMessageID());
+            logger.info(String.format("Sent message with JMS Correlation ID: %s Thread: %s",
+                    textMessage.getJMSMessageID(), Thread.currentThread().getName()));
 
             if (readBack) {
                 String jmsCorrelationID = " JMSCorrelationID = '" + textMessage.getJMSMessageID() + "'";
