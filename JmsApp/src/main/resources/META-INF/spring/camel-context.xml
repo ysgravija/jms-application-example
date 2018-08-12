@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Configures the Camel Context-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <!--<property name="location">-->
+            <!--<value>classpath:database.properties</value>-->
+        <!--</property>-->
+        <property name="locations">
+            <list>
+                <!--<value>file:${config.dir}/database.properties</value>-->
+                <value>classpath:database.properties</value>
+            </list>
+        </property>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    </bean>
+
+    <bean id="consumer" class="com.twoolab.jms.ConsumerProcessor"/>
+
+    <bean id="wmq-QM1" class="org.apache.camel.component.jms.JmsComponent">
+        <property name="preserveMessageQos" value="true"/>
+        <property name="connectionFactory">
+            <bean class="com.ibm.mq.jms.MQConnectionFactory">
+                <property name="transportType" value="1"/>
+                <property name="hostName" value="${qm1.hostName}"/>
+                <property name="port" value="${qm1.port}"/>
+                <property name="queueManager" value="${qm1.queueManager}"/>
+                <property name="channel" value="${qm1.channel}" />
+            </bean>
+        </property>
+    </bean>
+    <bean id="wmq-QM2" class="org.apache.camel.component.jms.JmsComponent">
+        <property name="preserveMessageQos" value="true"/>
+        <property name="connectionFactory">
+            <bean class="com.ibm.mq.jms.MQConnectionFactory">
+                <property name="transportType" value="1"/>
+                <property name="hostName" value="${qm2.hostName}"/>
+                <property name="port" value="${qm2.port}"/>
+                <property name="queueManager" value="${qm2.queueManager}"/>
+                <property name="channel" value="${qm2.channel}" />
+            </bean>
+        </property>
+    </bean>
+
+    <camel:camelContext xmlns="http://camel.apache.org/schema/spring">
+        <route id="read-wmq-QM1">
+            <from uri="wmq-QM1:queue:DEV.QUEUE.1?concurrentConsumers=1" />
+            <setHeader headerName="CurrentDateTime">
+                <simple>${bean:java.lang.System?method=currentTimeMillis}</simple>
+            </setHeader>
+            <setHeader headerName="JMSDeliveryMode">
+                <constant>NON_PERSISTENT</constant>
+            </setHeader>
+            <process ref="consumer"/>
+            <to uri="stream:out"/>
+        </route>
+
+        <route id="read-wmq-QM2">
+            <from uri="wmq-QM2:queue:DEV.QUEUE.2?concurrentConsumers=1" />
+            <setHeader headerName="CurrentDateTime">
+                <simple>${bean:java.lang.System?method=currentTimeMillis}</simple>
+            </setHeader>
+            <setHeader headerName="JMSDeliveryMode">
+                <constant>NON_PERSISTENT</constant>
+            </setHeader>
+            <process ref="consumer"/>
+            <to uri="stream:out"/>
+        </route>
+    </camel:camelContext>
+
+</beans>
