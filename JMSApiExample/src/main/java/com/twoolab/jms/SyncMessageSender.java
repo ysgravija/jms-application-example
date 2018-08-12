@@ -29,7 +29,7 @@ public class SyncMessageSender {
     private final String replyQueueName;
 
     public SyncMessageSender(String hostname, String channel, int port,
-                             String queueManager, String sendQueueName, String replyQueueName) throws JMSException {
+                             String queueManager, String sendQueueName, String replyQueueName, boolean ssl) throws JMSException {
 
         this.replyQueueName = replyQueueName;
 
@@ -39,6 +39,10 @@ public class SyncMessageSender {
         mqQueueConnectionFactory.setPort(port);
         mqQueueConnectionFactory.setQueueManager(queueManager);
         mqQueueConnectionFactory.setTransportType(JMSC.MQJMS_TP_CLIENT_MQ_TCPIP);
+
+        if (ssl) {
+            mqQueueConnectionFactory.setSSLCipherSuite("TLS_RSA_WITH_AES_128_CBC_SHA256");
+        }
 
         connection = mqQueueConnectionFactory.createQueueConnection();
         connection.start();

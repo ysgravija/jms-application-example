@@ -1,3 +1,5 @@
+package com.twoolab;
+
 import com.twoolab.jms.QueueReceiverRunnable;
 import com.twoolab.jms.SyncMessageSender;
 import org.slf4j.Logger;
@@ -30,7 +32,7 @@ public class Main {
         try {
             QueueReceiverRunnable consumerRunnable = new QueueReceiverRunnable(
                     consumerHostname, consumerChannel, consumerPort,
-                    consumerQueueManager, consumerQueue);
+                    consumerQueueManager, consumerQueue, true);
 
 
             Thread consumerThread = new Thread(consumerRunnable);
@@ -63,7 +65,7 @@ public class Main {
             try {
                 SyncMessageSender sender = new SyncMessageSender(
                         producerHostname, producerChannel, producerPort,
-                        producerQueueManager, consumerQueue, producerReplyQueue);
+                        producerQueueManager, consumerQueue, producerReplyQueue, true);
 
                 for (int i = 0; i < 100; i++) {
                     String msg = "Sending test message " + i;
